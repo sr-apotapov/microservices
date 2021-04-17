@@ -1,0 +1,68 @@
+pipeline {  
+    environment {
+        dockerImageComment = 'name/comment'
+        dockerImagePost = 'name/post_py'
+        dockerImageUi = 'name/ui'
+        shortCommit = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
+    }  
+
+  agent any
+  
+  stages {
+    stage('Cloning Git') {
+      steps {
+        git 'https://github.com/oleg-klimin/reddit-microservices'
+            }
+        }
+
+    stage('Building images') {
+      steps{
+        script {
+          dir ('${workspace}/comment') {
+              sh 'docker build -t $dockerImageComment:$shortCommit -t $dockerImageComment:latest .'
+          }            
+          dir ('${workspace}/post-py') {
+              sh 'docker build -t $dockerImagePost:$shortCommit -t $dockerImagePost:latest .'
+          }            
+          dir ('${workspace}/ui') {
+              sh 'docker build -t $dockerImageUi:$shortCommit -t $dockerImageUi:latest .'
+          }            
+            }
+        }
+    }
+
+    stage('Pushing image') {
+      steps{
+        withDockerRegistry([ credentialsId: "Docker hub credentials", url: "" ]) { 
+          sh 'docker push $dockerImageComment'
+          sh 'docker push $dockerImagePost'
+          sh 'docker push $dockerImageUi'
+          }            
+            }
+        }
+
+    stage('Remove Unused docker image') {
+      steps{
+        sh "docker rmi $dockerImageComment:$shortCommit"
+        sh "docker rmi $dockerImagePost:$shortCommit"
+        sh "docker image prune -f"
+          }
+        }
+
+    stage('Deploing to minikube') {
+      steps{
+        script {
+          try {
+            sh "kubectl delete deploy --all -n dev"
+            sh "kubectl delete svc --all -n dev"
+
+          } catch (err) {
+            echo "No web deployment found, continuing"
+          }
+          sh "kubectl apply -f kubernetes/. -n dev"
+            }
+           }
+        }
+
+  }
+}
