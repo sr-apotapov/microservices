@@ -11,7 +11,7 @@ pipeline {
   stages {
     stage('Cloning Git') {
       steps {
-        git 'https://github.com/sr-apotapov/reddit-microservices'
+        git 'https://github.com/sr-apotapov/microservices'
             }
         }
 
