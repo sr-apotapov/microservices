@@ -1,8 +1,8 @@
 pipeline {  
     environment {
-        dockerImageComment = 'name/comment'
-        dockerImagePost = 'name/post_py'
-        dockerImageUi = 'name/ui'
+        dockerImageComment = 'zombrox/new_comment'
+        dockerImagePost = 'zombrox/new_post_py'
+        dockerImageUi = 'zombrox/new_ui'
         shortCommit = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
     }  
 
@@ -11,7 +11,7 @@ pipeline {
   stages {
     stage('Cloning Git') {
       steps {
-        git 'https://github.com/oleg-klimin/reddit-microservices'
+        git 'https://github.com/sr-apotapov/reddit-microservices'
             }
         }
 
