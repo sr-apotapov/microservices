@@ -18,13 +18,13 @@ pipeline {
     stage('Building images') {
       steps{
         script {
-          dir ('${WORKSPACE}/comment') {
+          dir ('./comment') {
               sh 'docker build -t $dockerImageComment:$shortCommit -t $dockerImageComment:latest .'
           }            
-          dir ('${WORKSPACE}/post-py') {
+          dir ('./post-py') {
               sh 'docker build -t $dockerImagePost:$shortCommit -t $dockerImagePost:latest .'
           }            
-          dir ('${WORKSPACE}/ui') {
+          dir ('./ui') {
               sh 'docker build -t $dockerImageUi:$shortCommit -t $dockerImageUi:latest .'
           }            
             }
